@@ -1,0 +1,2 @@
+# AssetsBundle
+CocosCreator AssetsBundle
