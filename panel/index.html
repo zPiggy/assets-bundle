@@ -1,0 +1,129 @@
+<html>
+<div id="view" class="scroll">
+    <!-- 主包配置 -->
+    <ui-section>
+        <div class="header greenColor">主包配置</div>
+        <div class="layout vertical start-justified">
+            <ui-prop name="包名" tooltip="规定主包名为Main 主包将会一起生成在子包存储目录中">
+                <div class="flex-1 layout horizontal center">
+                    <ui-input class="flex-1" v-value="mainPack.name" readonly disabled></ui-input>
+                    <ui-input class="flex-1" v-value="mainPack.zhName" readonly disabled></ui-input>
+                </div>
+            </ui-prop>
+
+            <ui-prop name="版本号" tooltip="主包版本号">
+                <div class="flex-1 layout horizontal center">
+                    <ui-input class="flex-1" v-value="mainPack.version"></ui-input>
+                </div>
+            </ui-prop>
+
+            <ui-prop name="资源服务器url" tooltip="游戏热更新服务器的url">
+                <div class="flex-1 layout horizontal center">
+                    <ui-input class="flex-2" v-value="mainPack.packageUrl"></ui-input>
+                </div>
+            </ui-prop>
+
+            <ui-prop name="子包存储路径" tooltip="以包名分目录存储主包和所有子包资源以及清单文件 此目录默认不可选，如有更改需求请直接修改config.json">
+                <div class="flex-1 layout horizontal center">
+                    <ui-input class="flex-2" readonly disabled v-value="packageSaveDir"></ui-input>
+                    <ui-button tooltip="打开">
+                        <!-- <i class="icon-doc-text"></i> -->
+                        <i class="icon-link-ext"></i>
+                    </ui-button>
+                </div>
+            </ui-prop>
+            <ui-prop name="是否调试" tooltip="如果是调试 子包将保存在 'Debug/' 目录中,相对应的也会在在热更地址后加一个 'Debug/' ">
+                <ui-checkbox v-value="isDebug">是否是调试热更包</ui-checkbox>
+            </ui-prop>
+        </div>
+    </ui-section>
+    <!-- 搜索 -->
+    <ui-box-container>
+        <ui-prop name="包名搜索">
+            <ui-input class="flex-1" v-value="searchStr"></ui-input>
+        </ui-prop>
+    </ui-box-container>
+    <!-- 子包配置 -->
+    <ui-box-container id="view" class="scroll shadow" height="200" width="200">
+        <ui-section>
+            <div class="header">子包配置 </div>
+            <div v-for="(index, pack) in subpackArr" track-by="$index">
+                <ui-section v-if="pack.name.indexOf(searchStr) >= 0">
+                    <!-- <ui-section> -->
+                    <div class="header greenColor">子包{{(index+1)+"  "+pack.name }}</div>
+                    <div class="layout vertical start-justified">
+                        <ui-prop name="包名">
+                            <div class="flex-1 layout horizontal center">
+                                <ui-input class="flex-1" v-value="pack.name"></ui-input>
+                                <ui-input class="flex-1" v-value="pack.zhName"></ui-input>
+                            </div>
+                        </ui-prop>
+                        <ui-prop name="版本号">
+                            <div class="flex-1 layout horizontal center">
+                                <ui-input class="flex-1" v-value="pack.version"></ui-input>
+                            </div>
+                        </ui-prop>
+                        <ui-prop name="可选参数" tooltip="私有性 表示当前子包资源是否对外开放,如果子包表示一个独立子游戏,它应该是一个私有包">
+                            <ui-box-container class="layout horizontal flex-1 justified">
+                                <ui-checkbox v-value="pack.isPrivate">包体私有性</ui-checkbox>
+                                <ui-checkbox v-value="pack.zipImport">zip import目录</ui-checkbox>
+                                <ui-checkbox v-value="pack.zipRawassets">zip raw-assets目录</ui-checkbox>
+                            </ui-box-container>
+                        </ui-prop>
+                        <ui-prop name="分包类型"
+                            tooltip="本地分包: 官方分包     热更分包: 官方分包+分包单独热更     远程分包: 将官方分包从App主包中分离出来降低包体大小使用前必须先下载分包">
+                            <ui-select v-value="pack.type">
+                                <option value="LOCAL">本地分包</option>
+                                <option value="HOT_UPDATE">热更分包</option>
+                                <option value="REMOTE">远程分包</option>
+                            </ui-select>
+                        </ui-prop>
+
+                        <!-- 废弃子包服务器地址 默认与主包一致 -->
+                        <!-- <ui-prop name="资源服务器url" tooltip="游戏热更新服务器的url">
+                            <div class="flex-1 layout horizontal center">
+                                <ui-input class="flex-2" v-value="pack.packageUrl"></ui-input>
+                            </div>
+                        </ui-prop> -->
+
+                        <ui-prop name="资源目录" tooltip="子包包含的所有资源目录,请确保所有子包资源独立" foldable>
+                            <ui-button class="green" v-on:confirm="addResDir(pack)">添加目录</ui-button>
+                            <div class="child">
+                                <div class="flex-1 layout horizontal" v-for="(idx, path) in pack.resDirs"
+                                    track-by="$index">
+                                    <ui-input class="flex-1" v-value="path"></ui-input>
+                                    <ui-button v-on:confirm="onSelectSubResDir(pack.resDirs, idx)">选取目录</ui-button>
+
+                                    <div class="self-center " @click="delResDir(pack, idx)">
+                                        <i class="icon-trash-empty"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </ui-prop>
+                    </div>
+                    <ui-button class="self-center red" v-on:confirm="delSubpack(index)">删除子包配置</ui-button>
+                </ui-section>
+            </div>
+
+        </ui-section>
+    </ui-box-container>
+
+    <!-- 按钮 -->
+    <div class="layout vertical">
+        <ui-button class="self-start blue" v-on:confirm="addSubpack()">添加子包</ui-button>
+        <ui-button class="self-start green" v-on:confirm="checkPrivate()">校验子包资源安全性</ui-button>
+        <ui-button class="self-start green" v-on:confirm="saveConfig()">保存当前配置</ui-button>
+
+        <ui-button class="self-start green" v-on:confirm="genInitSubPackManifest()">为当前所有远程包生成初始化 manifest 文件
+        </ui-button>
+        <ui-button class="self-start red" v-on:confirm="removeAllSubpack()">清除项目中的所有子包配置</ui-button>
+        <ui-button class="self-start blue" v-on:confirm="setAllSubpack()">为项目设置插件面板配置的子包</ui-button>
+    </div>
+
+
+</div>
+
+
+</div>
+
+</html>

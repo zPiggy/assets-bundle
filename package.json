@@ -1,0 +1,31 @@
+{
+  "name": "assets-bundle",
+  "version": "1.0.0",
+  "description": "资源打包, 瘦身你的App, 适用于大厅和关卡游戏",
+  "author": "zPiggy",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/assets-bundle": {
+      "message": "assets-bundle:open"
+    }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "icon": "./icon.png",
+    "title": "资源打包工具",
+    "min-width": 550,
+    "width": 550,
+    "height": 500
+  },
+  "dependencies": {
+    "@types/jszip": "^3.1.7",
+    "@types/node": "^13.1.6",
+    "crypto": "^1.0.1",
+    "fs": "0.0.1-security",
+    "fs-extra": "^8.1.0",
+    "jszip": "^3.2.2",
+    "path": "^0.12.7",
+    "zip-local": "^0.3.4"
+  }
+}
