@@ -206,7 +206,6 @@ class AssetsBundle {
         let srcDir = path.join(buildRoot, packDir);
         let destDir2 = path.join(destDir, packDir);
         if (options === "move") {
-            Editor.log(srcDir, destDir2);
             FsExtra.moveSync(srcDir, destDir2);
         }
         else {

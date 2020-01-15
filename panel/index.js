@@ -90,7 +90,7 @@ Editor.Panel.extend({
                         const pack = this.subpackArr[i];
                         await this.setSubpack(pack);
                     }
-                    Editor.log("=============  结束设置子包  =============");
+                    Editor.log("=============  完成设置子包  =============");
 
                 },
 
@@ -148,7 +148,7 @@ Editor.Panel.extend({
                             }
                         }
                     }
-                    Editor.log("=============  结束移除子包  =============");
+                    Editor.log("=============  完成移除子包  =============");
 
                 },
 
@@ -183,6 +183,12 @@ Editor.Panel.extend({
                         pack.resDirs.splice(index, 1);
                     }
                 },
+                onOpenDir(rPath) {
+                    let fullpath = path.join(Editor.Project.path, rPath);
+
+                    FsUtils.openDir(fullpath);
+
+                },
                 onSelectSubResDir(resDirs, index) {
                     var dir = FsUtils.selectDir();
                     // 获取相对路径
@@ -206,7 +212,7 @@ Editor.Panel.extend({
                                 flag = false;
                                 await AssetDB.create(rootUrl);
                             }
-                            let newPack = Object.assign(pack);
+                            let newPack = JSON.parse(JSON.stringify(pack));
                             newPack.packageUrl = this.mainPack.packageUrl;
                             let manifest = HotUpdateBuilder.generateEmptyManifest(newPack, this.isDebug);
                             // 创建目录

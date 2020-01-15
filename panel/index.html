@@ -26,8 +26,7 @@
             <ui-prop name="子包存储路径" tooltip="以包名分目录存储主包和所有子包资源以及清单文件 此目录默认不可选，如有更改需求请直接修改config.json">
                 <div class="flex-1 layout horizontal center">
                     <ui-input class="flex-2" readonly disabled v-value="packageSaveDir"></ui-input>
-                    <ui-button tooltip="打开">
-                        <!-- <i class="icon-doc-text"></i> -->
+                    <ui-button v-on:confirm="onOpenDir(packageSaveDir)">
                         <i class="icon-link-ext"></i>
                     </ui-button>
                 </div>

@@ -22,20 +22,20 @@ class HotUpdateBuilder {
      */
     async build(targetDir, packInfo, isDebug) {
         if (packInfo.zipImport) {
-            Editor.log("zip压缩 import 目录");
+            Editor.log("开始zip压缩import目录");
             let fsDir = path.join(targetDir, "res/import");
             await this.zipDir(fsDir);
-            Editor.log("完成 import 压缩");
+            Editor.log("完成压缩");
         }
         if (packInfo.zipRawassets) {
-            Editor.log("zip压缩 raw-assets 目录");
+            Editor.log("开始zip压缩raw-assets目录");
             let fsDir = path.join(targetDir, "res/raw-assets");
             if (fs.existsSync(fsDir) == false) {
                 // 如果外层目录不存在 则可能是子包 raw-assets 目录在 subpackages 目录内
                 fsDir = path.join(targetDir, Config.SUBPACKAGES, packInfo.name, "raw-assets");
             }
             await this.zipDir(fsDir);
-            Editor.log("完成 raw-assets 压缩");
+            Editor.log("完成压缩");
         }
 
         let manifest = this.generateManifest(packInfo, isDebug);
@@ -166,7 +166,7 @@ class HotUpdateBuilder {
      * @returns {Manifest} Manifest 对象
      */
     generateEmptyManifest(packInfo, isDebug = false) {
-        let newPack = Object.assign(packInfo);
+        let newPack = JSON.parse(JSON.stringify(packInfo));
         newPack.version = "0.0.1";
         let manifest = this.generateManifest(newPack, isDebug);
         delete manifest.assets;
@@ -182,14 +182,14 @@ class HotUpdateBuilder {
         // 写入 project.manifest
         let file = path.join(destDir, Config.PROJECT_FILE);
         FsExtra.writeJSONSync(file, manifest);
-        Editor.log(file);
+        // Editor.log(file);
         // 写入 version.manifest
-        let version = Object.assign(manifest);
+        let version = JSON.parse(JSON.stringify(manifest));
         delete version.assets;
         delete version.searchPaths;
         file = path.join(destDir, Config.VERSION_FILE);
         FsExtra.writeJSONSync(file, version);
-        Editor.log(file);
+        // Editor.log(file);
 
     }
 
@@ -243,9 +243,7 @@ class HotUpdateBuilder {
      * @param {JSZip} zipInstance
      */
     ziped_dir(dir, zipInstance) {
-        // Editor.log(dir);
         let files = fs.readdirSync(dir);
-        // Editor.log("ok", files);
         for (let i = 0; i < files.length; i++) {
             let fileName = files[i];
             if (fileName[0] == "." || fileName == "..") {
@@ -253,7 +251,6 @@ class HotUpdateBuilder {
             }
             let fullPath = path.join(dir, fileName);
             let stat = fs.statSync(fullPath);
-            // console.log("判断文件类型::" + fullPath);
             if (stat.isFile()) {
                 /**
                  * zip文件的MD5会计算每一个文件的最后修改时间 由于子包中的每一个文件都是在每次构建时重新生成这将导致MD5始终不一致
@@ -269,5 +266,4 @@ class HotUpdateBuilder {
 
 }
 let instance = new HotUpdateBuilder();
-// Editor.HotUpdateBuilder = instance;
 module.exports = instance;
