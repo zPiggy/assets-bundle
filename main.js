@@ -3,7 +3,7 @@ var path = require("path");
 var fs = require("fs");
 
 var IPC = require('./core/IPC');
-var AssetsBundle = require("./core/AssetsBoundle");
+var AssetsBundle = require("./core/AssetsBundle");
 // 重新编译 main.js 追加设置搜索路径逻辑
 function reBuildMainJs(buildOptions) {
     let buildDestPath = buildOptions.dest;

@@ -23,8 +23,9 @@ class AssetDB {
         return url.indexOf("db://") == 0;
     }
     /**
-     * 相对路径转 url (仅做转换为校验url是否存在)
+     * 相对路径转 url (仅做转换未校验url是否存在)
      * @param {string}} rPath 
+     * @returns {string}
      */
     getUrlByRelativepath(rPath) {
         if (this._isUrl(rPath)) return rPath;

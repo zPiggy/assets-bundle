@@ -117,6 +117,7 @@ class AssetsBundle {
                 }
 
                 // 查找出当前分包引用的所有外部资源
+                /**@type {string[]} */
                 let extUrls = [];
                 for (var uuid in dependsMap) {
                     let url = AssetsDB.mainAssetdb.uuidToUrl(uuid);
@@ -139,7 +140,10 @@ class AssetsBundle {
                         if (resDirs && resDirs.length) {
                             resDirs.forEach((rPath) => {
                                 let url = AssetsDB.getUrlByRelativepath(rPath);
-                                if (extUrls[j].indexOf(url) == 0) {
+                                // 修复 目录相似时造成的识别问题: /xx/xxx/aabb 与 /xx/xxx/aab 相似
+                                url = url.endsWith("/") ? url : url + "/";
+                                Editor.log(extUrls[j], url);
+                                if (extUrls[j].startsWith(url)) {
                                     errUrls.push(extUrls[j]);
                                 }
                             })

@@ -4,8 +4,8 @@ var path = require('path');
 var AssetDB = Editor.require('packages://assets-bundle/core/AssetsDB.js');
 /** @type {typeof import("../core/HotUpdateBuilder")} */
 const HotUpdateBuilder = Editor.require('packages://assets-bundle/core/HotUpdateBuilder.js');
-/**@type {typeof import("../core/AssetsBoundle")} */
-var AssetsBundle = Editor.require('packages://assets-bundle/core/AssetsBoundle.js');
+/**@type {typeof import("../core/AssetsBundle")} */
+var AssetsBundle = Editor.require('packages://assets-bundle/core/AssetsBundle.js');
 /**@type {typeof import("../Config")} */
 var Config = Editor.require('packages://assets-bundle/Config.js');
 /**@type {typeof import("../core/FsUtils")} */
