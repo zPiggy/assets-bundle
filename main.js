@@ -1,8 +1,30 @@
 'use strict';
+var path = require("path");
+var fs = require("fs");
 
 var IPC = require('./core/IPC');
 var AssetsBundle = require("./core/AssetsBoundle");
+// 重新编译 main.js 追加设置搜索路径逻辑
+function reBuildMainJs(buildOptions) {
+    let buildDestPath = buildOptions.dest;
+    var root = path.normalize(buildDestPath);
+    var url = path.join(root, "main.js");
+    let data = fs.readFileSync(url, "utf8");
+    if (data && typeof data === "string") {
+        var newStr =
+            "\n" +
+            "if (window.jsb) { \n" +
+            "    var hotUpdateSearchPaths = localStorage.getItem('HotUpdateSearchPaths'); \n" +
+            "    if (hotUpdateSearchPaths) { \n" +
+            "        jsb.fileUtils.setSearchPaths(JSON.parse(hotUpdateSearchPaths)); \n" +
+            "    }\n" +
+            "}\n";
+        var newData = newStr + data;
+        fs.writeFileSync(url, newData, "utf8");
 
+        Editor.log("[assets-bundle]:: 'HotUpdateSearchPaths' updated in built " + url);
+    }
+}
 
 module.exports = {
     load() {
@@ -60,12 +82,14 @@ module.exports = {
                     await AssetsBundle.run();
                 }
             }
+
+            reBuildMainJs(options);
+
         } catch (error) {
             Editor.error(error);
         }
 
         Editor.success(":::::: 打包资源结束 ::::::");
-
         callback();
     },
 
