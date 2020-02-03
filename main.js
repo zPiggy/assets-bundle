@@ -4,6 +4,7 @@ var fs = require("fs");
 
 var IPC = require('./core/IPC');
 var AssetsBundle = require("./core/AssetsBundle");
+var AutoAtlasUtils = require("./core/AutoAtlasUtils");
 // 重新编译 main.js 追加设置搜索路径逻辑
 function reBuildMainJs(buildOptions) {
     let buildDestPath = buildOptions.dest;
@@ -25,6 +26,7 @@ function reBuildMainJs(buildOptions) {
         Editor.log("[assets-bundle]:: 'HotUpdateSearchPaths' updated in built " + url);
     }
 }
+
 
 module.exports = {
     load() {
@@ -61,10 +63,15 @@ module.exports = {
             callback();
             return;
         }
+        var buildResults = options.buildResults;
 
         Editor.success(":::::: 开始打包资源 ::::::");
         try {
-            var buildResults = options.buildResults;
+            let autoAtlasInfo;
+            if ("如果自动图集分离存在问题,直接注释if即可") {
+                autoAtlasInfo = AutoAtlasUtils.getSubPackageAutoAtlas(options);
+            }
+
             // Editor.log("编译完成:", options);
             let buildDest = options.dest;
             let platform = options.platform; // 'android',
@@ -79,7 +86,7 @@ module.exports = {
                 console.log("开始校验资源安全性和私有性");
                 if (await AssetsBundle.check()) {
                     Editor.log("开始打包");
-                    await AssetsBundle.run();
+                    await AssetsBundle.run(autoAtlasInfo);
                 }
             }
 

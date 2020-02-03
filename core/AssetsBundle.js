@@ -51,8 +51,11 @@ class AssetsBundle {
 
         return true;
     }
-
-    async run() {
+    /**
+     * 执行打包
+     * @param {AutoAtlasInfo} autoAtlasInfo 子包自动图集信息
+     */
+    async run(autoAtlasInfo) {
         try {
             let packs = this.plugConfig.subpackArr;
             let isDebug = this.plugConfig.isDebug;
@@ -71,11 +74,11 @@ class AssetsBundle {
                     continue;
                 }
 
-                Editor.log(pack.name);
+                Editor.log("========== " + pack.name + " ==========");
                 // 为子包填入主包的远程资源地址;
                 pack.packageUrl = packageUrl;
 
-                await this.pickAssets(pack, this.buildRoot, destDir, type === "REMOTE" ? "move" : "copy");
+                await this.pickAssets(pack, this.buildRoot, destDir, type === "REMOTE" ? "move" : "copy", autoAtlasInfo);
                 await HotUpdateBuilder.build(destDir, pack, isDebug);
 
             }
@@ -142,7 +145,7 @@ class AssetsBundle {
                                 let url = AssetsDB.getUrlByRelativepath(rPath);
                                 // 修复 目录相似时造成的识别问题: /xx/xxx/aabb 与 /xx/xxx/aab 相似
                                 url = url.endsWith("/") ? url : url + "/";
-                                Editor.log(extUrls[j], url);
+                                // Editor.log(extUrls[j], url);
                                 if (extUrls[j].startsWith(url)) {
                                     errUrls.push(extUrls[j]);
                                 }
@@ -170,10 +173,12 @@ class AssetsBundle {
      * @param {string} buildRoot ${project}/build/jsb-default
      * @param {string} destDir ${project}/HotUpdate/xxx
      * @param {"copy" | "move"} options 
+     * @param {AutoAtlasInfo} autoAtlasInfo 子包自动图集信息
      */
-    async pickAssets(pack, buildRoot, destDir, options = "copy") {
+    async pickAssets(pack, buildRoot, destDir, options = "copy", autoAtlasInfo) {
         let resDirs = pack.resDirs;
         // 1.收集子包资源目录下的所有 json 资源
+        let uuids = [];
         for (let i = 0; i < resDirs.length; i++) {
             if (resDirs[i]) {
                 let url = AssetsDB.getExistUrlByRelativepath(resDirs[i]);
@@ -183,25 +188,39 @@ class AssetsBundle {
                 }
                 // 收集除脚本目录以外的所有资源 
                 let assets = await AssetsDB.getAssets(url + "/**/*", "", Config.ScriptType.concat("folder"));
-                let uuids = assets.map((asset, index) => {
+                let _uuids = assets.map((asset, index) => {
                     return asset.uuid;
                 });
-                for (let j = 0; j < uuids.length; j++) {
-                    var uuid = uuids[j];
-                    let rPath = this.getBuildImportPath(uuid);
-                    let file = path.join(buildRoot, rPath);
-                    if (fs.existsSync(file) == false) {
-                        Editor.error("文件不存在: " + file);
-                        continue;
-                    }
-                    let destFile = path.join(destDir, rPath);
-                    if (options === "move") {
-                        FsExtra.moveSync(file, destFile, { overwrite: true });
-                    }
-                    else {
-                        FsExtra.copySync(file, destFile);
-                    }
+
+                uuids = uuids.concat(_uuids);
+            }
+        }
+        let autoAtlasContains = {};
+        // 追加自动图集uuid
+        if (autoAtlasInfo) {
+            uuids = uuids.concat(autoAtlasInfo[pack.name].uuids);
+            autoAtlasContains = autoAtlasInfo[pack.name].containsSubAssets;
+        }
+
+        for (let j = 0; j < uuids.length; j++) {
+            var uuid = uuids[j];
+            let rPath = this.getBuildImportPath(uuid);
+            let file = path.join(buildRoot, rPath);
+
+            if (rPath == "" || fs.existsSync(file) == false || fs.statSync(file).isFile() == false) {
+                // 追加 排除自动图集uuid
+                if (!autoAtlasContains[uuid]) {
+                    file = AssetsDB.mainAssetdb.uuidToUrl(uuid);    // 转成能看懂的文件
+                    Editor.log("构建资源中不存在文件(可能未参与构建): " + file);
                 }
+                continue;
+            }
+            let destFile = path.join(destDir, rPath);
+            if (options === "move") {
+                FsExtra.moveSync(file, destFile, { overwrite: true });
+            }
+            else {
+                FsExtra.copySync(file, destFile);
             }
         }
 
@@ -251,7 +270,8 @@ class AssetsBundle {
      * @requires {"res/import/xx/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.json"}
      */
     getBuildImportPath(uuid) {
-        if (AssetsDB._isUuid(uuid)) {
+        // 追加 自动图集9位uuid 的处理
+        if (AssetsDB._isUuid(uuid) || uuid.length == 9) {
             let preDir = uuid.substr(0, 2);
             let file = uuid + ".json";
             return path.join("res/import", preDir, file);

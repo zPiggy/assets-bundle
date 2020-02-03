@@ -75,5 +75,14 @@
 {{
     [packName: string]: Pack
 }} Subpackages 引擎构建后的所有子包
+
+
+@typedef
+{{
+    [packageName: string]: {
+    uuids: string[]
+    containsSubAssets: {[uuid: string]: boolean}
+    }
+}} AutoAtlasInfo 子包自动图集信息表
 */
 
