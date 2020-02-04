@@ -36,7 +36,7 @@ class AutoAtlasUtils {
             }
         }
 
-        Editor.log("自动图集配置:", JSON.stringify(autoAtlas));
+        // Editor.log("自动图集配置:", JSON.stringify(autoAtlas));
 
         return autoAtlas;
     }

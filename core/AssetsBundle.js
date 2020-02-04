@@ -55,7 +55,7 @@ class AssetsBundle {
      * 执行打包
      * @param {AutoAtlasInfo} autoAtlasInfo 子包自动图集信息
      */
-    async run(autoAtlasInfo) {
+    async run(autoAtlasInfo = {}) {
         try {
             let packs = this.plugConfig.subpackArr;
             let isDebug = this.plugConfig.isDebug;
@@ -78,7 +78,7 @@ class AssetsBundle {
                 // 为子包填入主包的远程资源地址;
                 pack.packageUrl = packageUrl;
 
-                await this.pickAssets(pack, this.buildRoot, destDir, type === "REMOTE" ? "move" : "copy", autoAtlasInfo);
+                await this.pickAssets(pack, this.buildRoot, destDir, type === "REMOTE" ? "move" : "copy", autoAtlasInfo[pack.name]);
                 await HotUpdateBuilder.build(destDir, pack, isDebug);
 
             }
@@ -173,7 +173,7 @@ class AssetsBundle {
      * @param {string} buildRoot ${project}/build/jsb-default
      * @param {string} destDir ${project}/HotUpdate/xxx
      * @param {"copy" | "move"} options 
-     * @param {AutoAtlasInfo} autoAtlasInfo 子包自动图集信息
+     * @param {SubpackageAutoAtlasInfo} autoAtlasInfo 子包自动图集信息
      */
     async pickAssets(pack, buildRoot, destDir, options = "copy", autoAtlasInfo) {
         let resDirs = pack.resDirs;
@@ -198,8 +198,9 @@ class AssetsBundle {
         let autoAtlasContains = {};
         // 追加自动图集uuid
         if (autoAtlasInfo) {
-            uuids = uuids.concat(autoAtlasInfo[pack.name].uuids);
-            autoAtlasContains = autoAtlasInfo[pack.name].containsSubAssets;
+            uuids = uuids.concat(autoAtlasInfo.uuids || []);
+            autoAtlasContains = autoAtlasInfo.containsSubAssets || {};
+            Editor.log("自动图集信息::", autoAtlasInfo.uuids, autoAtlasInfo.containsSubAssets);
         }
 
         for (let j = 0; j < uuids.length; j++) {
