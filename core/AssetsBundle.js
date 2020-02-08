@@ -8,14 +8,14 @@ var HotUpdateBuilder = require("./HotUpdateBuilder");
 var Config = require("../Config");
 
 
-class AssetsBundle {
+module.exports = {
     /**@type Subpackages*/
-    subpackages;
-    buildRoot = "";
+    subpackages: null,
+    buildRoot: "",
     /**@type {PlugConfig} */
-    plugConfig;
+    plugConfig: null,
 
-    subpackagesPath = "";
+    subpackagesPath: "",
 
     /**
      * 
@@ -35,7 +35,7 @@ class AssetsBundle {
         Editor.log("项目子包目录: " + this.subpackagesPath);
         // 移除打包目录下所有子包
 
-    }
+    },
 
     async check() {
         let subpackArr = this.plugConfig.subpackArr;
@@ -50,7 +50,7 @@ class AssetsBundle {
         }
 
         return true;
-    }
+    },
     /**
      * 执行打包
      * @param {AutoAtlasInfo} autoAtlasInfo 子包自动图集信息
@@ -93,7 +93,7 @@ class AssetsBundle {
         } catch (error) {
             Editor.error(error);
         }
-    }
+    },
 
     /**
      * 检验子包资源私有性 (无法校验脚本的相互引用关系)
@@ -165,7 +165,7 @@ class AssetsBundle {
 
 
         return isOK;
-    }
+    },
 
     /**
      * 收集子包资源到目标目录
@@ -236,7 +236,7 @@ class AssetsBundle {
             FsExtra.copySync(srcDir, destDir2);
         }
 
-    }
+    },
 
     /**
      * 收集主包资源到目标目录(目录拷贝)
@@ -262,7 +262,7 @@ class AssetsBundle {
             FsExtra.copySync(subPath, destSub);
         }
 
-    }
+    },
 
     /**
      * 获取资源的import的相对路径
@@ -279,7 +279,7 @@ class AssetsBundle {
         }
         Editor.error("无效的uuid: " + uuid);
         return "";
-    }
+    },
 
 
 
@@ -293,10 +293,7 @@ class AssetsBundle {
         if (AssetsDB.mainAssetdb.exists(manifestDirUrl)) {
             await AssetsDB.delete([manifestDirUrl]);
         }
-    }
+    },
 
 
 }
-let instance = new AssetsBundle();
-
-module.exports = instance;

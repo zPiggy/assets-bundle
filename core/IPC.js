@@ -2,7 +2,7 @@ var Ipc = Editor.Ipc
 var packageJson = require("../package.json");
 var packName = packageJson.name;
 
-class IPC {
+module.exports = {
     /**
      * 发送消息到面板
      * @param {string} funcName 
@@ -19,7 +19,7 @@ class IPC {
                 resolve([error, data]);
             })
         });
-    }
+    },
     /**
     * 发送消息到主进程
     * @param {string} funcName
@@ -36,18 +36,16 @@ class IPC {
                 resolve([error, data]);
             })
         });
-    }
+    },
 
     async sendToPanel(funcName, strData) {
         return this._toPanel(funcName, strData);
-    }
+    },
 
     async sendToMain(funcName, strData) {
         return this._toMain(funcName, strData);
-    }
+    },
 
 
 
 }
-
-module.exports = new IPC();

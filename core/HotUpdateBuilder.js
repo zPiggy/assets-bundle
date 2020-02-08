@@ -12,7 +12,7 @@ var JSZIP = require('jszip');
 
 var ZIP_COMMON_DATE = new Date("2020-01-01");  // zip压缩时采用的公共文件修改时间
 
-class HotUpdateBuilder {
+module.exports = {
 
     /**
      * 编译子包清单
@@ -61,7 +61,7 @@ class HotUpdateBuilder {
             await AssetsDB.refresh(manifestDirUrl);
         }
 
-    }
+    },
 
     /**
      * 为目录生成热更对象(仅支持 构建目录【${project}/build/jsb-default 或者 ${project}/HotUpdate/xxxx】)
@@ -82,7 +82,7 @@ class HotUpdateBuilder {
         this._readDir(srcDir, subPath, manifest.assets);
 
         return manifest;
-    }
+    },
 
     /**
      * 
@@ -126,7 +126,7 @@ class HotUpdateBuilder {
                 }
             }
         }
-    }
+    },
 
     /**
      * 生成 Manifest 对象
@@ -158,7 +158,7 @@ class HotUpdateBuilder {
         // manifest.searchPaths = [];
         manifest.assets = manifest.assets || Object.create(null);
         return manifest;
-    }
+    },
     /**
      * 生成基础的 Manifest 对象(version="0.0.1")
      * @param {Package} packInfo
@@ -172,7 +172,7 @@ class HotUpdateBuilder {
         delete manifest.assets;
         delete manifest.searchPaths;
         return manifest;
-    }
+    },
     /**
      * 写入清单文件
      * @param {string} destDir 
@@ -191,7 +191,7 @@ class HotUpdateBuilder {
         FsExtra.writeJSONSync(file, version);
         // Editor.log(file);
 
-    }
+    },
 
 
 
@@ -236,7 +236,7 @@ class HotUpdateBuilder {
 
         // 压缩成功后 移除目录
         FsUtils.rmdirSync_R(fsDir);
-    }
+    },
     /**
      * 
      * @param {string} dir 
@@ -262,8 +262,6 @@ class HotUpdateBuilder {
                 this.ziped_dir(fullPath, zipInstance.folder(fileName));
             }
         }
-    }
+    },
 
 }
-let instance = new HotUpdateBuilder();
-module.exports = instance;
