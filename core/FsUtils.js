@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var Electron = require('electron');
 
-class FsUtils {
+module.exports = {
     /**
      * 递归删除一个目录
      * @param {string} dir 
@@ -22,7 +22,7 @@ class FsUtils {
             });
             fs.rmdirSync(dir);  //删除目录
         }
-    }
+    },
 
 
     /**
@@ -38,7 +38,7 @@ class FsUtils {
         }
         Electron.shell.showItemInFolder(dir);
         Electron.shell.beep();
-    }
+    },
     /**
      * 选择一个目录
      * @param {string} title 
@@ -61,7 +61,7 @@ class FsUtils {
         }
         return "";
 
-    }
+    },
     /**
      * 选择一个文件
      * @param {string} title 
@@ -84,7 +84,7 @@ class FsUtils {
             return res[0];
         }
         return "";
-    }
+    },
     /**
      * 获取相对路径
      */
@@ -101,7 +101,7 @@ class FsUtils {
             return pathArr[0];
         }
         return url;
-    }
+    },
     /**
      * 获取绝对路径
      */
@@ -110,11 +110,9 @@ class FsUtils {
             return url;
         }
         return path.join(Editor.Project.path, url);
-    }
+    },
     /**是否是绝对路径 */
     isAbsolutePath(url) {
         return url.indexOf(Editor.Project.path) === 0;
-    }
+    },
 }
-
-module.exports = new FsUtils();

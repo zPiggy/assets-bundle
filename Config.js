@@ -7,26 +7,23 @@ var CONF_PATH = "settings";
 var CONF_FILE_NAME = "AssetsBundle.json";
 
 
-class Config {
+module.exports = {
     /** @type {"db://assets/resources/Manifest"} */
-    MANIFEST_DIR_URL = "db://assets/resources/Manifest";
+    MANIFEST_DIR_URL: "db://assets/resources/Manifest",
     /**@type {"project.manifest"} */
-    PROJECT_FILE = "project.manifest";
+    PROJECT_FILE: "project.manifest",
     /**@type {"version.manifest"} */
-    VERSION_FILE = "version.manifest";
+    VERSION_FILE: "version.manifest",
     /**@type {"Debug"} */
-    DEBUG_DIR = "Debug";
+    DEBUG_DIR: "Debug",
     /**@type {"subpackages"} */
-    SUBPACKAGES = "subpackages";
-    ScriptType = ["javascript", "typescript", "coffeescript"];
-    IMPORT_DIR = "import";
+    SUBPACKAGES: "subpackages",
+    ScriptType: ["javascript", "typescript", "coffeescript"],
+    IMPORT_DIR: "import",
 
 
-    configFile = "";
+    configFile: path.join(Editor.Project.path, CONF_PATH, CONF_FILE_NAME),
 
-    constructor() {
-        this.configFile = path.join(Editor.Project.path, CONF_PATH, CONF_FILE_NAME);
-    }
 
     /**
      * 读取配置文件
@@ -41,7 +38,7 @@ class Config {
         let json = fs.readFileSync(file, "utf8");
         let config = JSON.parse(json);
         return config;
-    }
+    },
     /**
      * 
      * @param {PlugConfig} config
@@ -56,7 +53,7 @@ class Config {
         // 写入文件
         fs.writeFileSync(file, JSON.stringify(config, null, 4));
         Editor.log("配置文件保存成功 " + file);
-    }
+    },
 
 
     /**
@@ -67,9 +64,7 @@ class Config {
         if (fs.existsSync(file)) {
             fs.unlinkSync(file);
         }
-    }
+    },
 
 
 }
-
-module.exports = new Config();

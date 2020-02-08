@@ -1,9 +1,8 @@
 var path = require("path");
-var fs = require("fs");
 var Config = require("../Config");
 var AssetsDB = require("./AssetsDB");
 
-class AutoAtlasUtils {
+module.exports = {
     /**
      * 仅获取项目子包的自动图集信息
      * @returns {AutoAtlasInfo}
@@ -39,7 +38,7 @@ class AutoAtlasUtils {
         // Editor.log("自动图集配置:", JSON.stringify(autoAtlas));
 
         return autoAtlas;
-    }
+    },
     /**
      * 获取被自动图集打包的精灵帧和贴图Uuid集合
      * @param {string} uuid
@@ -70,17 +69,13 @@ class AutoAtlasUtils {
         }
         // return Object.keys(uuids);
         return uuidsMap;
-    }
+    },
 
     _getSubPackageName(nativeUrl, root) {
         let name = "";
         name = nativeUrl.replace(root, "");
         name = name.split("/")[0]
         return name;
-    }
+    },
 
 }
-
-let instance = new AutoAtlasUtils();
-
-module.exports = instance;

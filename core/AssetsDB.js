@@ -9,19 +9,19 @@ var isUuid = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 
 var scriptType = ["javascript", "typescript", "coffeescript"];
 
-class AssetDB {
+module.exports = {
     get mainAssetdb() {
         if (Editor.isMainProcess) {
             return Editor.assetdb;
         }
         return Editor.remote.assetdb;
-    }
+    },
     _isUuid(uuid) {
         return isUuid.test(uuid);
-    }
+    },
     _isUrl(url = "") {
         return url.indexOf("db://") == 0;
-    }
+    },
     /**
      * 相对路径转 url (仅做转换未校验url是否存在)
      * @param {string}} rPath 
@@ -33,7 +33,7 @@ class AssetDB {
         rPath.replace(/\/$/, "");
         rPath.replace(/^\//, "");
         return "db://" + rPath;
-    }
+    },
     /**
      * 获取一个存在的url
      * @param {string} rPath 
@@ -45,7 +45,7 @@ class AssetDB {
             return url;
         }
         return "";
-    }
+    },
 
     async _handle(param, assetdbHandle) {
         return new Promise((resolve) => {
@@ -58,7 +58,7 @@ class AssetDB {
                 }
             })
         });
-    }
+    },
     /**
      * 
      * @param {string} rPath 
@@ -68,20 +68,20 @@ class AssetDB {
         let url = this.getUrlByRelativepath(rPath);
         // console.log(url);
         return this._handle(url, assetdbHandle);
-    }
+    },
     async _uuidHandle(rPath, assetdbHandle) {
         let uuid = await this.getUuidByUrl(rPath);
         return this._handle(uuid, assetdbHandle);
-    }
+    },
     /////////////////////
 
     async getPathByUrl(rPath) {
         return this._rPathHandle(rPath, assetdb.queryPathByUrl);
-    }
+    },
 
     async getUuidByUrl(rPath) {
         return this._rPathHandle(rPath, assetdb.queryUuidByUrl);
-    }
+    },
     /**
      * 
      * @param {string} rPath 相对路径或者 url 路径
@@ -95,7 +95,7 @@ class AssetDB {
      */
     async getInfoByUrl(rPath) {
         return this._uuidHandle(rPath, assetdb.queryInfoByUuid);
-    }
+    },
     /**
      * 
      * @param {string} rPath 相对路径或者 url 路径
@@ -113,7 +113,7 @@ class AssetDB {
      */
     async getMetaInfoByUrl(rPath) {
         return this._uuidHandle(rPath, assetdb.queryMetaInfoByUuid);
-    }
+    },
 
 
     // 
@@ -141,11 +141,11 @@ class AssetDB {
                 }
             })
         })
-    }
+    },
 
     async getAssetsFolders() {
         return await this.getAssets("db://assets/**/*", "folder");
-    }
+    },
 
     async create(url, strData) {
         return new Promise((resolve) => {
@@ -158,7 +158,7 @@ class AssetDB {
                 }
             });
         });
-    }
+    },
     /**
      * 
      * @param {string[]} urls 
@@ -173,7 +173,7 @@ class AssetDB {
                 else { resolve([]) }
             })
         })
-    }
+    },
 
     async createOrSave(url, strData) {
         if (this.mainAssetdb.exists(url)) {
@@ -192,7 +192,7 @@ class AssetDB {
         else {
             await this.create(url, strData);
         }
-    }
+    },
 
     async refresh(url) {
         return new Promise((resolve) => {
@@ -206,7 +206,7 @@ class AssetDB {
                 }
             })
         });
-    }
+    },
 
     /**
      * mkdir -p
@@ -233,7 +233,7 @@ class AssetDB {
                 })
             }
         }
-    }
+    },
 
 
     /**
@@ -265,7 +265,7 @@ class AssetDB {
             }
         }
         return findedMap;
-    }
+    },
     /**
      * 获取依赖关系uuids
      * @param pattern url的匹配模式
@@ -289,7 +289,7 @@ class AssetDB {
         }
 
         return uuidMap;
-    }
+    },
     /**
      * 获取文件内的 uuid 
      * @param {string} Fspath 绝对路径 
@@ -309,10 +309,7 @@ class AssetDB {
             }
         }
         return uuidMap;
-    }
+    },
 
 
 }
-
-let instance = new AssetDB();
-module.exports = instance;
