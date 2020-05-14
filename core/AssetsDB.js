@@ -29,9 +29,14 @@ module.exports = {
      */
     getUrlByRelativepath(rPath) {
         if (this._isUrl(rPath)) return rPath;
+        // win 平台下 替换为linux路径
+        if (process.platform == "win32") {
+            rPath = rPath.replace(/\\/g, "/");
+        }
         // 去除前后的 "/"
-        rPath.replace(/\/$/, "");
-        rPath.replace(/^\//, "");
+        rPath = rPath.replace(/\/$/, "");
+        rPath = rPath.replace(/^\//, "");
+
         return "db://" + rPath;
     },
     /**
@@ -112,6 +117,7 @@ module.exports = {
      * }>} 
      */
     async getMetaInfoByUrl(rPath) {
+
         return this._uuidHandle(rPath, assetdb.queryMetaInfoByUuid);
     },
 

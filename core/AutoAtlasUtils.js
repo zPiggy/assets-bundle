@@ -74,6 +74,10 @@ module.exports = {
     _getSubPackageName(nativeUrl, root) {
         let name = "";
         name = nativeUrl.replace(root, "");
+        if (process.platform == "win32") {
+            name = name.replace(/\\/g, "/");
+        }
+        // 第一个目录名为子包名
         name = name.split("/")[0]
         return name;
     },

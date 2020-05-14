@@ -31,9 +31,13 @@
                     </ui-button>
                 </div>
             </ui-prop>
+            <ui-prop name="构建时校验资源" tooltip="由于检验资源比较消耗性能,可以选择手动校验后构建时不校验">
+                <ui-checkbox v-value="buildWithCheck"></ui-checkbox>
+            </ui-prop>
             <ui-prop name="是否调试" tooltip="如果是调试 子包将保存在 'Debug/' 目录中,相对应的也会在在热更地址后加一个 'Debug/' ">
                 <ui-checkbox v-value="isDebug">是否是调试热更包</ui-checkbox>
             </ui-prop>
+
         </div>
     </ui-section>
     <!-- 搜索 -->

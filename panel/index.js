@@ -35,6 +35,7 @@ Editor.Panel.extend({
 
     // method executed when template and styles are successfully loaded and initialized
     ready() {
+        Editor.log("assets-bundle: 插件加载成功");
         this.vue = new window.Vue({
             el: this.shadowRoot,
             init: function () {
@@ -47,7 +48,8 @@ Editor.Panel.extend({
                     this.mainPack = config.mainPack;
                     this.subpackArr = config.subpackArr;
                     this.packageSaveDir = config.packageSaveDir;
-                    this.isDebug = this.isDebug;
+                    this.isDebug = config.isDebug;
+                    this.buildWithCheck = config.buildWithCheck;
                 }
 
             },
@@ -72,6 +74,7 @@ Editor.Panel.extend({
                  * */
                 subpackArr: [],
                 isDebug: false,
+                buildWithCheck: true,
 
                 searchStr: "",
             },
@@ -98,7 +101,6 @@ Editor.Panel.extend({
                  * 根据配置在项目中设置子包
                  */
                 async setSubpack(pack) {
-                    // pack = this.subpackArr[0];
                     let dirs = pack.resDirs;
                     let packName = pack.name;
                     let _logstr = packName + ":: ";
@@ -185,16 +187,19 @@ Editor.Panel.extend({
                 },
                 onOpenDir(rPath) {
                     let fullpath = path.join(Editor.Project.path, rPath);
-
                     FsUtils.openDir(fullpath);
-
                 },
                 onSelectSubResDir(resDirs, index) {
                     var dir = FsUtils.selectDir();
-                    // 获取相对路径
-                    dir = FsUtils.getRelativePath(dir);
+                    if (dir) {
+                        // 获取相对路径
+                        dir = FsUtils.getRelativePath(dir);
+                        // 转linux路径
+                        dir = dir.replace(/\\/g, "/");
 
-                    resDirs.splice(index, 1, dir);  //解决arr[index] = newValue时  Vue无法检测到更新问题
+                        resDirs.splice(index, 1, dir);  //解决arr[index] = newValue时  Vue无法检测到更新问题
+                    }
+
                 },
                 /**
                  * 为远程子包生成初始化清单文件
@@ -241,6 +246,7 @@ Editor.Panel.extend({
                     let data = {
                         packageSaveDir: this.packageSaveDir,
                         isDebug: this.isDebug,
+                        buildWithCheck: this.buildWithCheck,
                         mainPack: this.mainPack,
                         subpackArr: this.subpackArr,
                     }
@@ -271,11 +277,17 @@ Editor.Panel.extend({
                 subpackArr: this.vue.subpackArr,
                 packageSaveDir: this.vue.packageSaveDir,
                 isDebug: this.vue.isDebug,
+                buildWithCheck: this.vue.buildWithCheck,
             }
             if (event.reply) {
                 // 返回子包配置信息
                 event.reply(null, JSON.stringify(plugConfig));
             }
         }
+    },
+
+    close() {
+        Editor.log("assets-bundle: 插件已关闭");
+        return true;
     }
 });

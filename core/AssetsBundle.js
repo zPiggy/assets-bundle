@@ -6,6 +6,7 @@ var FsExtra = require("fs-extra");
 var AssetsDB = require("./AssetsDB");
 var HotUpdateBuilder = require("./HotUpdateBuilder");
 var Config = require("../Config");
+var FsUtils = require("./FsUtils");
 
 
 module.exports = {
@@ -45,7 +46,6 @@ module.exports = {
             return false;
         }
         if (await this.checkPrivate(subpackArr) === false) {
-            Editor.error("资源打包失败!");
             return false;
         }
 
@@ -67,8 +67,10 @@ module.exports = {
                 let type = packs[i].type;
                 // ${project}/HotUpdate/xxx | ${project}/HotUpdate/xxx/Debug
                 let destDir = path.join(saveDir, pack.name, isDebug ? Config.DEBUG_DIR : "");
+                Editor.log("目标目录: " + destDir);
                 // 清空该子包的热更目录
-                FsExtra.removeSync(destDir);
+                FsUtils.clearDirSync(destDir);
+                // FsExtra.removeSync(destDir);
                 if (type === "LOCAL") {
                     await this.clearPackage(pack.name);
                     continue;
@@ -84,9 +86,11 @@ module.exports = {
             }
 
             Editor.success("开始打包主包资源");
+            await this.sleep(2000);
             let destDir = path.join(saveDir, this.plugConfig.mainPack.name, isDebug ? Config.DEBUG_DIR : "")
             // 清空主包的热更目录
-            FsExtra.removeSync(destDir);
+            FsUtils.clearDirSync(destDir);
+            // FsExtra.removeSync(destDir);
             this.pickMainAssets(this.buildRoot, destDir);
             await HotUpdateBuilder.build(destDir, this.plugConfig.mainPack, isDebug);
 
@@ -102,6 +106,10 @@ module.exports = {
     async checkPrivate(subpackArr = []) {
 
         let isOK = true;
+
+        let st = new Date().getTime();
+
+        // TODO:这里可能存在性能问题
         for (let i = 0; i < subpackArr.length; i++) {
             let resDirs = subpackArr[i].resDirs;
             if (resDirs && resDirs.length) {
@@ -162,7 +170,7 @@ module.exports = {
             }
         }
 
-
+        Editor.log("校验资源耗时: " + (new Date().getTime() - st) + "ms");
 
         return isOK;
     },
@@ -200,7 +208,7 @@ module.exports = {
         if (autoAtlasInfo) {
             uuids = uuids.concat(autoAtlasInfo.uuids || []);
             autoAtlasContains = autoAtlasInfo.containsSubAssets || {};
-            Editor.log("自动图集信息::", autoAtlasInfo.uuids, autoAtlasInfo.containsSubAssets);
+            // Editor.log("自动图集信息::", autoAtlasInfo.uuids, autoAtlasInfo.containsSubAssets);
         }
 
         for (let j = 0; j < uuids.length; j++) {
@@ -218,10 +226,12 @@ module.exports = {
             }
             let destFile = path.join(destDir, rPath);
             if (options === "move") {
-                FsExtra.moveSync(file, destFile, { overwrite: true });
+                FsUtils.moveFileSync(file, destFile);
+                // FsExtra.moveSync(file, destFile, { overwrite: true });
             }
             else {
-                FsExtra.copySync(file, destFile);
+                FsUtils.copyFileSync(file, destFile);
+                // FsExtra.copySync(file, destFile);
             }
         }
 
@@ -230,10 +240,12 @@ module.exports = {
         let srcDir = path.join(buildRoot, packDir);
         let destDir2 = path.join(destDir, packDir);
         if (options === "move") {
-            FsExtra.moveSync(srcDir, destDir2);
+            FsUtils.moveDirSync(srcDir, destDir2);
+            // FsExtra.moveSync(srcDir, destDir2);
         }
         else {
-            FsExtra.copySync(srcDir, destDir2);
+            FsUtils.copyDirSync(srcDir, destDir2);
+            // FsExtra.copySync(srcDir, destDir2);
         }
 
     },
@@ -253,13 +265,14 @@ module.exports = {
         let destSub = path.join(destDir, "subpackages");
 
         if (fs.existsSync(srcPath)) {
-            FsExtra.copySync(srcPath, destSrc);
+            FsUtils.copyDirSync(srcPath, destSrc);
         }
         if (fs.existsSync(resPath)) {
-            FsExtra.copySync(resPath, destRes);
+            FsUtils.copyDirSync(resPath, destRes);
         }
         if (fs.existsSync(subPath)) {
-            FsExtra.copySync(subPath, destSub);
+            FsUtils.copyDirSync(subPath, destSub);
+            // FsExtra.copySync(subPath, destSub);
         }
 
     },
@@ -295,5 +308,17 @@ module.exports = {
         }
     },
 
+    /**
+     * 暂停
+     * @param {number} time 毫秒
+     * @returns undefined
+     */
+    async sleep(time) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, time);
+        })
+    }
 
 }

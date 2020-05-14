@@ -23,19 +23,20 @@ function reBuildMainJs(buildOptions) {
         var newData = newStr + data;
         fs.writeFileSync(url, newData, "utf8");
 
-        Editor.log("[assets-bundle]:: 'HotUpdateSearchPaths' updated in built " + url);
+        Editor.log("[assets-bundle]:: 'HotUpdateSearchPaths' 已插入 main.js 文件头部");
     }
 }
 
 
 module.exports = {
     load() {
-        // Editor.log("加载成功, 项目编译时请始终保持此插件同时打开");
+
         Editor.Builder.on('build-finished', this.onBuildFinished);
         Editor.Builder.on('build-start', this.onBuildStart);
     },
 
     unload() {
+        Editor.warn("assets-bundle: 插件已卸载");
         Editor.Builder.removeListener('build-finished', this.onBuildFinished);
         Editor.Builder.removeListener('build-start', this.onBuildStart);
     },
@@ -70,6 +71,7 @@ module.exports = {
             let autoAtlasInfo;
             if ("如果自动图集分离存在问题,直接注释if即可") {
                 autoAtlasInfo = AutoAtlasUtils.getSubPackageAutoAtlas(options);
+                // Editor.log("自动图集信息:", autoAtlasInfo);
             }
 
             // Editor.log("编译完成:", options);
@@ -80,13 +82,24 @@ module.exports = {
             if (!error) {
                 /**@type {PlugConfig} */
                 let plugConfig = JSON.parse(strData);
-                AssetsBundle.init(plugConfig, buildDest, _subpackages);
+                let buildWithCheck = plugConfig.buildWithCheck;
 
-                Editor.log("开始校验资源安全性和私有性");
-                console.log("开始校验资源安全性和私有性");
-                if (await AssetsBundle.check()) {
+                AssetsBundle.init(plugConfig, buildDest, _subpackages);
+                let isOK = true;
+                if (buildWithCheck) {
+                    Editor.log("开始校验资源安全性和私有性");
+                    isOK = await AssetsBundle.check();
+                }
+                else {
+                    Editor.log("已跳过资源校验, 请自行确保资源安全和私有性");
+                }
+
+                if (isOK) {
                     Editor.log("开始打包");
                     await AssetsBundle.run(autoAtlasInfo);
+                }
+                else {
+                    Editor.error("资源打包失败!");
                 }
             }
 

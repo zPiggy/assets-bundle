@@ -235,7 +235,7 @@ module.exports = {
         }
 
         // 压缩成功后 移除目录
-        FsUtils.rmdirSync_R(fsDir);
+        FsUtils.rmdirSync(fsDir);
     },
     /**
      * 
