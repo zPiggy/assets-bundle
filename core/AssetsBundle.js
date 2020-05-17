@@ -8,7 +8,6 @@ var HotUpdateBuilder = require("./HotUpdateBuilder");
 var Config = require("../Config");
 var FsUtils = require("./FsUtils");
 
-
 module.exports = {
     /**@type Subpackages*/
     subpackages: null,

@@ -35,7 +35,7 @@ Editor.Panel.extend({
 
     // method executed when template and styles are successfully loaded and initialized
     ready() {
-        Editor.log("assets-bundle: 插件加载成功");
+        // Editor.log("assets-bundle: 插件加载成功");
         this.vue = new window.Vue({
             el: this.shadowRoot,
             init: function () {
@@ -287,7 +287,7 @@ Editor.Panel.extend({
     },
 
     close() {
-        Editor.log("assets-bundle: 插件已关闭");
+        // Editor.log("assets-bundle: 插件已关闭");
         return true;
     }
 });

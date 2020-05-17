@@ -2,9 +2,9 @@
 var path = require("path");
 var fs = require("fs");
 
-var IPC = require('./core/IPC');
-var AssetsBundle = require("./core/AssetsBundle");
-var AutoAtlasUtils = require("./core/AutoAtlasUtils");
+// var IPC = require('./core/IPC');
+// var AssetsBundle = require("./core/AssetsBundle");
+// var AutoAtlasUtils = require("./core/AutoAtlasUtils");
 // 重新编译 main.js 追加设置搜索路径逻辑
 function reBuildMainJs(buildOptions) {
     let buildDestPath = buildOptions.dest;
@@ -50,6 +50,7 @@ module.exports = {
         }
         // 动态设置子包 并获取子包配置信息
         try {
+            let IPC = require("./core/IPC");
             let [error] = await IPC.sendToPanel("onBuildStart");
             error && Editor.error(error);
         } catch (error) {
@@ -65,6 +66,10 @@ module.exports = {
             return;
         }
         var buildResults = options.buildResults;
+
+        let IPC = require("./core/IPC");
+        let AssetsBundle = require("./core/AssetsBundle");
+        let AutoAtlasUtils = require("./core/AutoAtlasUtils");
 
         Editor.success(":::::: 开始打包资源 ::::::");
         try {
